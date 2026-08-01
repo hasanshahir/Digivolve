@@ -33,7 +33,7 @@ export default function RootLayout({
       lang="en"
       className={`${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-bg text-text font-sans flex flex-col md:pl-20">
+      <body className="min-h-full bg-bg text-text font-sans flex flex-col">
         <ThemeProvider>
           <PageTransition>{children}</PageTransition>
         </ThemeProvider>

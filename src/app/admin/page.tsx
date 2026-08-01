@@ -266,9 +266,9 @@ export default function AdminPage() {
       <main className="min-h-screen bg-bg flex flex-col justify-center items-center px-4 py-12 transition-colors duration-300">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 font-bold text-sm text-text-muted hover:text-text mb-8 hover:underline decoration-accent-coral underline-offset-4"
+          className="inline-flex items-center gap-2 px-4 py-2 border-2 border-border bg-surface text-text rounded-full font-bold text-xs shadow-brutal hover:shadow-brutal-sm hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all duration-150 mb-8"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Home
+          <ArrowLeft className="w-4 h-4 text-accent-coral" /> Back to Home
         </Link>
         <div className="w-full max-w-md brutalist-card bg-surface p-8 space-y-6">
           <div className="text-center space-y-2">

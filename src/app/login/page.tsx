@@ -132,9 +132,9 @@ export default function LoginPage() {
       {/* Back button */}
       <Link
         href="/"
-        className="inline-flex items-center gap-2 font-bold text-sm text-text-muted hover:text-text mb-8 hover:underline decoration-accent-coral underline-offset-4"
+        className="inline-flex items-center gap-2 px-4 py-2 border-2 border-border bg-surface text-text rounded-full font-bold text-xs shadow-brutal hover:shadow-brutal-sm hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all duration-150 mb-8"
       >
-        <ArrowLeft className="w-4 h-4" /> Back to Home
+        <ArrowLeft className="w-4 h-4 text-accent-coral" /> Back to Home
       </Link>
 
       <div className="w-full max-w-md">

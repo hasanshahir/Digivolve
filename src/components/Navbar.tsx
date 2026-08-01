@@ -7,8 +7,9 @@ import { Sun, Moon, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
-  const { theme, toggleTheme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
+  const { theme, toggleTheme, isMenuOpen, setIsMenuOpen } = useTheme();
+  const isOpen = isMenuOpen;
+  const setIsOpen = setIsMenuOpen;
 
   const navLinks = [
     { name: "Services", href: "/services" },
