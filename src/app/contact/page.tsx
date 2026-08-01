@@ -92,7 +92,7 @@ function ContactContent() {
   ];
 
   return (
-    <main className="flex-grow pt-12 pb-20 transition-colors duration-300">
+    <main className="flex-grow pt-24 md:pt-32 pb-20 transition-colors duration-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Breadcrumb Back link */}

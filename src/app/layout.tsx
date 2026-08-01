@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
+import PageTransition from "@/components/PageTransition";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -32,9 +33,9 @@ export default function RootLayout({
       lang="en"
       className={`${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-bg text-text font-sans flex flex-col">
+      <body className="min-h-full bg-bg text-text font-sans flex flex-col md:pl-20">
         <ThemeProvider>
-          {children}
+          <PageTransition>{children}</PageTransition>
         </ThemeProvider>
       </body>
     </html>
