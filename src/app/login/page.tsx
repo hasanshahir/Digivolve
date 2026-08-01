@@ -49,7 +49,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/account`,
+          redirectTo: `${window.location.origin}/Digivolve/account`,
         },
       });
       if (error) throw new Error(error.message);
