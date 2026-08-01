@@ -97,7 +97,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/login" className="text-sm text-text-muted hover:text-text hover:underline underline-offset-4">
-                  Client Portal
+                  Member Portal
                 </Link>
               </li>
             </ul>
@@ -132,16 +132,10 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom bar */}
         <div className="border-t-2 border-border mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-text-muted text-xs">
             &copy; {currentYear} HKH Agency. All rights reserved. Work delivered under our previous name, Digivolve — now HKH.
           </p>
-          <div className="flex gap-4">
-            <Link href="/admin" className="text-xs text-text-muted hover:text-text hover:underline">
-              Admin Portal
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

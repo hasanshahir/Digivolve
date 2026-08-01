@@ -16,7 +16,9 @@ import {
   Eye,
   LogOut,
   Sparkles,
-  Info
+  Info,
+  AlertCircle,
+  Lock
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -89,6 +91,12 @@ export default function AdminPage() {
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [isDemoData, setIsDemoData] = useState(false);
 
+  // Admin login states
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminLoginLoading, setAdminLoginLoading] = useState(false);
+  const [adminLoginError, setAdminLoginError] = useState("");
+
   // Filter States
   const [search, setSearch] = useState("");
   const [focusFilter, setFocusFilter] = useState("All");
@@ -102,22 +110,53 @@ export default function AdminPage() {
     const authenticateAdmin = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       
-      if (!session) {
-        router.push("/login");
-        return;
+      if (session && session.user.email === "hasanshahirconnect@gmail.com") {
+        setIsAdmin(true);
+        fetchSubmissions();
+      } else {
+        // If not authenticated, stop showing loading spinner and show the admin form inline
+        setIsAdmin(false);
+        setLoading(false);
       }
-
-      if (session.user.email !== "hasanshahirconnect@gmail.com") {
-        router.push("/login?error=unauthorized");
-        return;
-      }
-
-      setIsAdmin(true);
-      fetchSubmissions();
     };
 
     authenticateAdmin();
   }, [router, supabase]);
+
+  const handleAdminSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminLoginLoading(true);
+    setAdminLoginError("");
+
+    if (adminEmail !== "hasanshahirconnect@gmail.com") {
+      setAdminLoginError("Access Denied: Unauthorized admin email.");
+      setAdminLoginLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: adminEmail,
+        password: adminPassword,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.user?.email === "hasanshahirconnect@gmail.com") {
+        setIsAdmin(true);
+        fetchSubmissions();
+      } else {
+        await supabase.auth.signOut();
+        setAdminLoginError("Access Denied.");
+      }
+    } catch (err: any) {
+      setAdminLoginError(err.message || "Failed to authenticate. Verify credentials.");
+    } finally {
+      setAdminLoginLoading(false);
+    }
+  };
 
   const fetchSubmissions = async () => {
     setLoading(true);
@@ -214,11 +253,88 @@ export default function AdminPage() {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  if (!isAdmin || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-accent-coral border-t-transparent rounded-full animate-spin" />
       </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <main className="min-h-screen bg-bg flex flex-col justify-center items-center px-4 py-12 transition-colors duration-300">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 font-bold text-sm text-text-muted hover:text-text mb-8 hover:underline decoration-accent-coral underline-offset-4"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Home
+        </Link>
+        <div className="w-full max-w-md brutalist-card bg-surface p-8 space-y-6">
+          <div className="text-center space-y-2">
+            <span className="brutalist-badge-coral w-10 h-10 flex items-center justify-center font-display font-bold text-xl text-white mx-auto">
+              H
+            </span>
+            <h2 className="font-display font-bold text-2xl text-text">
+              Admin Gateway
+            </h2>
+            <p className="text-text-muted text-xs">
+              Direct administrative login. Authorized access only.
+            </p>
+          </div>
+
+          {adminLoginError && (
+            <div className="p-4 border-2 border-border bg-red-100 dark:bg-red-950/20 text-red-700 dark:text-red-400 rounded-xl flex items-start gap-3 text-xs">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <p className="font-medium">{adminLoginError}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleAdminSignIn} className="space-y-4">
+            <div className="space-y-1">
+              <label htmlFor="admin-email" className="block text-[10px] font-bold text-text uppercase tracking-wider">
+                Admin Email
+              </label>
+              <input
+                id="admin-email"
+                type="email"
+                required
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                placeholder="hasanshahirconnect@gmail.com"
+                className="w-full px-4 py-3 border-2 border-border bg-bg text-text rounded-xl focus:outline-none focus:border-accent-coral transition-colors text-sm"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label htmlFor="admin-password" className="block text-[10px] font-bold text-text uppercase tracking-wider">
+                Password
+              </label>
+              <input
+                id="admin-password"
+                type="password"
+                required
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 border-2 border-border bg-bg text-text rounded-xl focus:outline-none focus:border-accent-coral transition-colors text-sm"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={adminLoginLoading}
+              className="brutalist-btn brutalist-btn-primary w-full py-3.5 flex items-center justify-center gap-2 text-sm select-none"
+            >
+              {adminLoginLoading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <span className="font-bold">Authenticate Admin</span>
+              )}
+            </button>
+          </form>
+        </div>
+      </main>
     );
   }
 

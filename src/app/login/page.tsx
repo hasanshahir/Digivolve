@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Lock, Mail, ShieldAlert, AlertCircle, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Lock, Mail, ShieldAlert, AlertCircle, ArrowLeft, UserPlus, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
@@ -12,18 +14,17 @@ const GoogleIcon = () => (
     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
   </svg>
 );
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [activeTab, setActiveTab] = useState<"client" | "admin">("client");
+  const [activeForm, setActiveForm] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   useEffect(() => {
     // Check if user is already logged in
@@ -43,6 +44,7 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setErrorMsg("");
+    setSuccessMsg("");
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -52,21 +54,20 @@ export default function LoginPage() {
       });
       if (error) throw new Error(error.message);
     } catch (err: any) {
-      setErrorMsg(err.message || "OAuth failed. Check your Supabase configuration.");
+      setErrorMsg(
+        err.message?.includes("provider is not enabled")
+          ? "Google Login is not enabled yet in the Supabase Dashboard. Please use Email/Password sign-up below!"
+          : err.message || "Authentication failed."
+      );
       setLoading(false);
     }
   };
 
-  const handleAdminSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg("");
-
-    if (email !== "hasanshahirconnect@gmail.com") {
-      setErrorMsg("Unauthorized: This login form is restricted to administrators.");
-      setLoading(false);
-      return;
-    }
+    setSuccessMsg("");
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -84,7 +85,42 @@ export default function LoginPage() {
         router.push("/account");
       }
     } catch (err: any) {
-      setErrorMsg(err.message || "Failed to sign in. Verify your password.");
+      setErrorMsg(err.message || "Failed to sign in. Please verify your credentials.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg("");
+    setSuccessMsg("");
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // If sign up is successful, check if user session is active (confirmation disabled) or check email
+      if (data.session) {
+        if (data.user?.email === "hasanshahirconnect@gmail.com") {
+          router.push("/admin");
+        } else {
+          router.push("/account");
+        }
+      } else {
+        setSuccessMsg("Registration successful! Check your email inbox to verify your account.");
+        setEmail("");
+        setPassword("");
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to register. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -114,39 +150,23 @@ export default function LoginPage() {
             </span>
           </Link>
           <p className="text-text-muted text-xs mt-2 uppercase tracking-widest font-bold">
-            Secure Client & Admin Portal
+            Portal Access
           </p>
         </div>
 
-        {/* Tab selector */}
-        <div className="grid grid-cols-2 border-2 border-border bg-surface rounded-t-xl overflow-hidden">
-          <button
-            onClick={() => {
-              setActiveTab("client");
-              setErrorMsg("");
-            }}
-            className={`py-3 font-display font-bold text-xs uppercase border-r-2 border-border cursor-pointer transition-colors ${
-              activeTab === "client" ? "bg-accent-sky text-text" : "bg-surface text-text-muted hover:text-text"
-            }`}
-          >
-            Client Login
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab("admin");
-              setErrorMsg("");
-            }}
-            className={`py-3 font-display font-bold text-xs uppercase cursor-pointer transition-colors ${
-              activeTab === "admin" ? "bg-accent-coral text-white" : "bg-surface text-text-muted hover:text-text"
-            }`}
-          >
-            Admin Access
-          </button>
-        </div>
-
         {/* Form Card */}
-        <div className="brutalist-card bg-surface p-8 rounded-t-none rounded-b-xl border-t-0">
-          
+        <div className="brutalist-card bg-surface p-8 rounded-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-accent-sky/10 rounded-full blur-2xl -z-10" />
+
+          {/* Success Banner */}
+          {successMsg && (
+            <div className="p-4 mb-6 border-2 border-border bg-green-100 dark:bg-green-950/20 text-green-700 dark:text-green-400 rounded-xl flex items-start gap-3 text-xs">
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <p className="font-medium">{successMsg}</p>
+            </div>
+          )}
+
+          {/* Error Banner */}
           {errorMsg && (
             <div className="p-4 mb-6 border-2 border-border bg-red-100 dark:bg-red-950/20 text-red-700 dark:text-red-400 rounded-xl flex items-start gap-3 text-xs">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -154,63 +174,32 @@ export default function LoginPage() {
             </div>
           )}
 
-          {activeTab === "client" ? (
-            /* CLIENT OAUTH LOGIN */
-            <div className="space-y-6 text-center">
-              <div className="space-y-2">
-                <h2 className="font-display font-bold text-xl text-text">
-                  Sign In to Client Portal
-                </h2>
-                <p className="text-text-muted text-xs leading-relaxed">
-                  Access your brand campaigns, design assets, and direct review channels.
-                </p>
-              </div>
-
-              <button
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-                className="brutalist-btn brutalist-btn-secondary w-full py-3.5 flex items-center justify-center gap-3 text-sm select-none"
-              >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-border border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <GoogleIcon />
-                    <span className="font-bold">Continue with Google</span>
-                  </>
-                )}
-              </button>
-
-              <div className="pt-2 text-[10px] text-text-muted leading-relaxed">
-                By signing in, you agree to our Terms of Service. Note: OAuth requires configuration in the Supabase Dashboard.
-              </div>
-            </div>
-          ) : (
-            /* ADMIN EMAIL/PASSWORD LOGIN */
-            <form onSubmit={handleAdminSignIn} className="space-y-6">
+          {activeForm === "signin" ? (
+            /* SIGN IN FORM */
+            <form onSubmit={handleSignIn} className="space-y-6">
               <div className="space-y-2 text-center">
-                <h2 className="font-display font-bold text-xl text-text">
-                  Admin Dashboard Log In
+                <h2 className="font-display font-bold text-2xl text-text">
+                  Sign In
                 </h2>
                 <p className="text-text-muted text-xs leading-relaxed">
-                  Restricted to authorized personnel. Session activities are monitored.
+                  Access your member board and campaign insights.
                 </p>
               </div>
 
               {/* Email */}
               <div className="space-y-1">
-                <label htmlFor="admin-email" className="block text-[10px] font-bold text-text uppercase tracking-wider">
-                  Admin Email
+                <label htmlFor="signin-email" className="block text-[10px] font-bold text-text uppercase tracking-wider">
+                  Email Address
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-3.5 w-4 h-4 text-text-muted" />
                   <input
-                    id="admin-email"
+                    id="signin-email"
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="hasanshahirconnect@gmail.com"
+                    placeholder="name@company.com"
                     className="w-full pl-12 pr-4 py-3 border-2 border-border bg-bg text-text rounded-xl focus:outline-none focus:border-accent-coral transition-colors text-sm"
                   />
                 </div>
@@ -218,13 +207,13 @@ export default function LoginPage() {
 
               {/* Password */}
               <div className="space-y-1">
-                <label htmlFor="admin-password" className="block text-[10px] font-bold text-text uppercase tracking-wider">
+                <label htmlFor="signin-password" className="block text-[10px] font-bold text-text uppercase tracking-wider">
                   Password
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-3.5 w-4 h-4 text-text-muted" />
                   <input
-                    id="admin-password"
+                    id="signin-password"
                     type="password"
                     required
                     value={password}
@@ -244,12 +233,125 @@ export default function LoginPage() {
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
+                  <span className="font-bold">Sign In</span>
+                )}
+              </button>
+
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-border/10"></div>
+                <span className="flex-shrink mx-4 text-text-muted text-[10px] font-bold uppercase tracking-widest">Or</span>
+                <div className="flex-grow border-t border-border/10"></div>
+              </div>
+
+              {/* Google OAuth Option */}
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="brutalist-btn brutalist-btn-secondary w-full py-3.5 flex items-center justify-center gap-3 text-sm select-none"
+              >
+                <GoogleIcon />
+                <span className="font-bold">Continue with Google</span>
+              </button>
+
+              {/* Form Switch */}
+              <div className="pt-2 text-center text-xs">
+                <span className="text-text-muted">Don't have an account? </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveForm("signup");
+                    setErrorMsg("");
+                    setSuccessMsg("");
+                  }}
+                  className="font-bold text-accent-coral hover:underline"
+                >
+                  Register here
+                </button>
+              </div>
+            </form>
+          ) : (
+            /* SIGN UP / REGISTER FORM */
+            <form onSubmit={handleSignUp} className="space-y-6">
+              <div className="space-y-2 text-center">
+                <h2 className="font-display font-bold text-2xl text-text">
+                  Register Account
+                </h2>
+                <p className="text-text-muted text-xs leading-relaxed">
+                  Create an account to manage campaigns and track visual assets.
+                </p>
+              </div>
+
+              {/* Email */}
+              <div className="space-y-1">
+                <label htmlFor="signup-email" className="block text-[10px] font-bold text-text uppercase tracking-wider">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-3.5 w-4 h-4 text-text-muted" />
+                  <input
+                    id="signup-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    className="w-full pl-12 pr-4 py-3 border-2 border-border bg-bg text-text rounded-xl focus:outline-none focus:border-accent-coral transition-colors text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="space-y-1">
+                <label htmlFor="signup-password" className="block text-[10px] font-bold text-text uppercase tracking-wider">
+                  Password (Min 6 characters)
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-3.5 w-4 h-4 text-text-muted" />
+                  <input
+                    id="signup-password"
+                    type="password"
+                    required
+                    minLength={6}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-12 pr-4 py-3 border-2 border-border bg-bg text-text rounded-xl focus:outline-none focus:border-accent-coral transition-colors text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="brutalist-btn brutalist-btn-primary w-full py-3.5 flex items-center justify-center gap-2 text-sm select-none"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
                   <>
-                    <ShieldAlert className="w-4 h-4" />
-                    <span className="font-bold">Authenticate Admin</span>
+                    <UserPlus className="w-4 h-4" />
+                    <span className="font-bold">Register Account</span>
                   </>
                 )}
               </button>
+
+              {/* Form Switch */}
+              <div className="pt-2 text-center text-xs">
+                <span className="text-text-muted">Already registered? </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveForm("signin");
+                    setErrorMsg("");
+                    setSuccessMsg("");
+                  }}
+                  className="font-bold text-accent-coral hover:underline"
+                >
+                  Sign in here
+                </button>
+              </div>
             </form>
           )}
 
