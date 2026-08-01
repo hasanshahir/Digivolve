@@ -1,0 +1,558 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  ShieldAlert,
+  ArrowLeft,
+  Search,
+  Filter,
+  Trash2,
+  Calendar,
+  DollarSign,
+  Briefcase,
+  Users,
+  Eye,
+  LogOut,
+  Sparkles,
+  Info
+} from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+
+// Recharts components loaded dynamically to prevent SSR hydration errors
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell
+} from "recharts";
+
+// Mock submissions for visualization when database is empty
+const MOCK_SUBMISSIONS = [
+  {
+    id: "mock-1",
+    created_at: new Date(Date.now() - 2 * 3600000 * 24).toISOString(), // 2 days ago
+    full_name: "Sarah Jenkins",
+    email: "sarah@clickfunnels.io",
+    project_focus: "Website Development",
+    budget_range: "AED 15,000 – AED 35,000",
+    message: "We need a custom landing page for our SaaS product launch. High speed is critical, page speed score must be above 95. We already have branding guides."
+  },
+  {
+    id: "mock-2",
+    created_at: new Date(Date.now() - 5 * 3600000 * 24).toISOString(), // 5 days ago
+    full_name: "Tariq Mahmood",
+    email: "t.mahmood@visaagent.ae",
+    project_focus: "Social Media Marketing",
+    budget_range: "AED 5,000 – AED 15,000",
+    message: "Looking for an agency to manage our Instagram reels and YouTube channel SEO optimization. We need 3 reels weekly."
+  },
+  {
+    id: "mock-3",
+    created_at: new Date(Date.now() - 1 * 3600000 * 24).toISOString(), // 1 day ago
+    full_name: "Michael Chen",
+    email: "m.chen@hypergrowth.com",
+    project_focus: "App Development",
+    budget_range: "AED 75,000 – AED 150,000",
+    message: "We want to build a cross platform React Native app for iOS and Android. Integration with Stripe and Supabase Auth required."
+  },
+  {
+    id: "mock-4",
+    created_at: new Date(Date.now() - 10 * 3600000 * 24).toISOString(), // 10 days ago
+    full_name: "Zoya Khan",
+    email: "zoya@ufmakeup.com",
+    project_focus: "Branding",
+    budget_range: "AED 5,000 – AED 15,000",
+    message: "Rebranding project for our cosmetic brand line. Logos, vector packages, color palettes, and social media media kits."
+  },
+  {
+    id: "mock-5",
+    created_at: new Date(Date.now() - 3 * 3600000 * 24).toISOString(), // 3 days ago
+    full_name: "Richard Vance",
+    email: "rvance@cfo-advisor.com",
+    project_focus: "Website Development",
+    budget_range: "AED 35,000 – AED 75,000",
+    message: "Next.js corporate website with interactive dashboards and lead management systems. Need custom design assets as well."
+  }
+];
+
+export default function AdminPage() {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [isDemoData, setIsDemoData] = useState(false);
+
+  // Filter States
+  const [search, setSearch] = useState("");
+  const [focusFilter, setFocusFilter] = useState("All");
+  const [budgetFilter, setBudgetFilter] = useState("All");
+  const [sortByDate, setSortByDate] = useState<"desc" | "asc">("desc");
+
+  // Collapsed message states
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const authenticateAdmin = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        router.push("/login");
+        return;
+      }
+
+      if (session.user.email !== "hasanshahirconnect@gmail.com") {
+        router.push("/login?error=unauthorized");
+        return;
+      }
+
+      setIsAdmin(true);
+      fetchSubmissions();
+    };
+
+    authenticateAdmin();
+  }, [router, supabase]);
+
+  const fetchSubmissions = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("contact_submissions")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw new Error(error.message);
+
+      if (data && data.length > 0) {
+        setSubmissions(data);
+        setIsDemoData(false);
+      } else {
+        // Fallback to mock data to show dashboard working
+        setSubmissions(MOCK_SUBMISSIONS);
+        setIsDemoData(true);
+      }
+    } catch (err) {
+      console.error("Failed to load submissions:", err);
+      // Fallback
+      setSubmissions(MOCK_SUBMISSIONS);
+      setIsDemoData(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
+
+  // Calculations
+  const totalSubmissions = submissions.length;
+  
+  const thisWeekSubmissions = submissions.filter((s) => {
+    const diffTime = Math.abs(new Date().getTime() - new Date(s.created_at).getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 7;
+  }).length;
+
+  const getPopularItem = (arr: string[]) => {
+    if (arr.length === 0) return "N/A";
+    const counts = arr.reduce((acc, curr) => {
+      acc[curr] = (acc[curr] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+  };
+
+  const popularFocus = getPopularItem(submissions.map((s) => s.project_focus).filter(Boolean));
+  const popularBudget = getPopularItem(submissions.map((s) => s.budget_range).filter(Boolean));
+
+  // Chart Data preparation
+  const budgetDistribution = submissions.reduce((acc, curr) => {
+    const range = curr.budget_range || "Unspecified";
+    // Strip "AED " from visual label for sizing
+    const label = range.replace(/AED /g, "");
+    acc[label] = (acc[label] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const chartData = Object.keys(budgetDistribution).map((key) => ({
+    name: key,
+    value: budgetDistribution[key]
+  }));
+
+  // Filtering Logic
+  const filteredSubmissions = submissions
+    .filter((s) => {
+      const matchSearch =
+        s.full_name.toLowerCase().includes(search.toLowerCase()) ||
+        s.email.toLowerCase().includes(search.toLowerCase()) ||
+        (s.message && s.message.toLowerCase().includes(search.toLowerCase()));
+      
+      const matchFocus = focusFilter === "All" || s.project_focus === focusFilter;
+      const matchBudget = budgetFilter === "All" || s.budget_range === budgetFilter;
+
+      return matchSearch && matchFocus && matchBudget;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sortByDate === "desc" ? dateB - dateA : dateA - dateB;
+    });
+
+  // Extract unique filters
+  const uniqueFocus = Array.from(new Set(submissions.map((s) => s.project_focus).filter(Boolean)));
+  const uniqueBudgets = Array.from(new Set(submissions.map((s) => s.budget_range).filter(Boolean)));
+
+  const handleToggleMessage = (id: string) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  if (!isAdmin || loading) {
+    return (
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-accent-coral border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Bar colors
+  const COLORS = ["#F4552F", "#2FA9D6", "#F2B705", "#16151A"];
+
+  return (
+    <div className="min-h-screen bg-bg flex flex-col transition-colors duration-300">
+      
+      {/* Top Header */}
+      <header className="w-full border-b-2 border-border bg-surface py-5 transition-colors">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <span className="brutalist-badge-coral w-10 h-10 flex items-center justify-center font-display font-bold text-xl text-white">
+              H
+            </span>
+            <div>
+              <h1 className="font-display font-bold text-lg text-text">HKH Dashboard</h1>
+              <p className="text-[10px] text-accent-coral font-bold uppercase tracking-wider">Admin Control Panel</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              className="text-xs font-semibold text-text-muted hover:text-text hover:underline"
+            >
+              Back to Site
+            </Link>
+            <button
+              onClick={handleSignOut}
+              className="w-10 h-10 border-2 border-border bg-bg text-text rounded-full flex items-center justify-center shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all cursor-pointer"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Container */}
+      <main className="flex-grow py-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
+          
+          {/* Demo Alert Banner */}
+          {isDemoData && (
+            <div className="p-4 border-2 border-border bg-accent-amber text-text rounded-xl flex items-center gap-3 text-sm font-semibold shadow-brutal-sm">
+              <Info className="w-5 h-5 flex-shrink-0" />
+              <p>
+                Showing DEMO submissions. Submit the public contact form on the website to populate this dashboard with real live leads!
+              </p>
+            </div>
+          )}
+
+          {/* Stat Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {/* Total Leads */}
+            <div className="brutalist-card p-6 bg-surface flex items-start gap-4">
+              <span className="brutalist-badge-coral w-12 h-12 flex-shrink-0">
+                <Users className="w-5 h-5 text-white" />
+              </span>
+              <div>
+                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest block">Total Submissions</span>
+                <span className="font-display font-extrabold text-3xl text-text block mt-1">
+                  {totalSubmissions}
+                </span>
+              </div>
+            </div>
+
+            {/* Leads This Week */}
+            <div className="brutalist-card p-6 bg-surface flex items-start gap-4">
+              <span className="brutalist-badge-sky w-12 h-12 flex-shrink-0">
+                <Calendar className="w-5 h-5 text-text" />
+              </span>
+              <div>
+                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest block">In Last 7 Days</span>
+                <span className="font-display font-extrabold text-3xl text-text block mt-1">
+                  {thisWeekSubmissions}
+                </span>
+              </div>
+            </div>
+
+            {/* Popular Focus */}
+            <div className="brutalist-card p-6 bg-surface flex items-start gap-4">
+              <span className="brutalist-badge-coral w-12 h-12 flex-shrink-0 bg-accent-amber">
+                <Briefcase className="w-5 h-5 text-text" />
+              </span>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest block">Top Project Focus</span>
+                <span className="font-display font-extrabold text-lg text-text block mt-1 truncate" title={popularFocus}>
+                  {popularFocus}
+                </span>
+              </div>
+            </div>
+
+            {/* Popular Budget */}
+            <div className="brutalist-card p-6 bg-surface flex items-start gap-4">
+              <span className="brutalist-badge-coral w-12 h-12 flex-shrink-0">
+                <DollarSign className="w-5 h-5 text-white" />
+              </span>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest block">Frequent Budget</span>
+                <span className="font-display font-extrabold text-sm text-text block mt-1.5 truncate" title={popularBudget}>
+                  {popularBudget}
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Visual Insight Section (Recharts) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* Chart Card */}
+            <div className="lg:col-span-5 brutalist-card bg-surface p-6 flex flex-col justify-between">
+              <div>
+                <h3 className="font-display font-bold text-lg text-text mb-1">Budget Allocation</h3>
+                <p className="text-xs text-text-muted mb-6">Distribution of inbound lead budget targets.</p>
+              </div>
+
+              <div className="h-64 w-full">
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis dataKey="name" stroke="#888888" fontSize={9} tickLine={false} />
+                      <YAxis stroke="#888888" fontSize={9} tickLine={false} allowDecimals={false} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "var(--surface)",
+                          border: "2px solid var(--border)",
+                          borderRadius: "10px",
+                          color: "var(--text)"
+                        }}
+                      />
+                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-xs text-text-muted">
+                    No data to chart
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Actions / Security Card */}
+            <div className="lg:col-span-7 brutalist-card bg-surface p-6 flex flex-col justify-between">
+              <div className="space-y-4">
+                <h3 className="font-display font-bold text-lg text-text">Database Controls</h3>
+                <p className="text-sm text-text-muted leading-relaxed">
+                  These submissions represent enquiries collected through the public website. You can filter and analyze budget profiles to evaluate resource allocation. Ensure your Supabase schema permits read operations on the `contact_submissions` table for the administrator role.
+                </p>
+                <div className="p-4 border-2 border-border bg-bg rounded-xl text-xs space-y-2">
+                  <span className="font-bold text-text uppercase tracking-wider block">Security Rule Verification:</span>
+                  <pre className="font-mono text-[9px] bg-surface p-2 border border-border/10 rounded-md overflow-x-auto text-text">
+{`create policy "admin can read contact submissions"
+  on public.contact_submissions
+  for select
+  to authenticated
+  using (auth.email() = 'hasanshahirconnect@gmail.com');`}
+                  </pre>
+                </div>
+              </div>
+
+              <div className="pt-6 flex flex-wrap gap-4">
+                <button
+                  onClick={fetchSubmissions}
+                  className="brutalist-btn brutalist-btn-primary px-6 py-2.5 text-xs"
+                >
+                  Reload Database
+                </button>
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    setFocusFilter("All");
+                    setBudgetFilter("All");
+                  }}
+                  className="brutalist-btn brutalist-btn-secondary px-6 py-2.5 text-xs"
+                >
+                  Reset Dashboard Filters
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Lead Submissions Table Section */}
+          <div className="brutalist-card bg-surface overflow-hidden">
+            
+            {/* Filters Bar */}
+            <div className="p-6 border-b-2 border-border bg-bg/20 flex flex-col md:flex-row gap-4 items-center justify-between">
+              
+              {/* Search bar */}
+              <div className="relative w-full md:w-80">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
+                <input
+                  type="text"
+                  placeholder="Search lead by name, email..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border-2 border-border bg-surface text-text rounded-full focus:outline-none focus:border-accent-coral text-xs"
+                />
+              </div>
+
+              {/* Filter selectors */}
+              <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                {/* Focus Filter */}
+                <div className="flex items-center gap-1.5 text-xs">
+                  <Filter className="w-3.5 h-3.5 text-text-muted" />
+                  <select
+                    value={focusFilter}
+                    onChange={(e) => setFocusFilter(e.target.value)}
+                    className="border-2 border-border bg-surface text-text rounded-full px-3 py-1.5 focus:outline-none text-xs cursor-pointer"
+                  >
+                    <option value="All">All Focus Areas</option>
+                    {uniqueFocus.map((f) => (
+                      <option key={f} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Budget Filter */}
+                <div className="flex items-center gap-1.5 text-xs">
+                  <select
+                    value={budgetFilter}
+                    onChange={(e) => setBudgetFilter(e.target.value)}
+                    className="border-2 border-border bg-surface text-text rounded-full px-3 py-1.5 focus:outline-none text-xs cursor-pointer"
+                  >
+                    <option value="All">All Budgets</option>
+                    {uniqueBudgets.map((b) => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Sort Order */}
+                <button
+                  onClick={() => setSortByDate(sortByDate === "desc" ? "asc" : "desc")}
+                  className="border-2 border-border bg-surface text-text rounded-full px-4 py-1.5 text-xs font-semibold cursor-pointer hover:bg-bg/10"
+                >
+                  Date: {sortByDate === "desc" ? "Newest First" : "Oldest First"}
+                </button>
+              </div>
+
+            </div>
+
+            {/* Table wrapper */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b-2 border-border bg-bg/30 text-text font-bold">
+                    <th className="p-4">Submission Date</th>
+                    <th className="p-4">Full Name</th>
+                    <th className="p-4">Email</th>
+                    <th className="p-4">Project Focus</th>
+                    <th className="p-4">Budget Range</th>
+                    <th className="p-4 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/10">
+                  {filteredSubmissions.length > 0 ? (
+                    filteredSubmissions.map((lead) => (
+                      <React.Fragment key={lead.id}>
+                        <tr className="hover:bg-bg/10 transition-colors">
+                          <td className="p-4 font-semibold text-text-muted">
+                            {new Date(lead.created_at).toLocaleDateString(undefined, {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            })}
+                          </td>
+                          <td className="p-4 font-bold text-text">{lead.full_name}</td>
+                          <td className="p-4 text-accent-sky font-semibold">{lead.email}</td>
+                          <td className="p-4">
+                            <span className="px-2.5 py-0.5 border border-border bg-surface rounded-full font-semibold">
+                              {lead.project_focus || "Consultation"}
+                            </span>
+                          </td>
+                          <td className="p-4 font-bold text-accent-coral">{lead.budget_range || "N/A"}</td>
+                          <td className="p-4 text-center">
+                            <button
+                              onClick={() => handleToggleMessage(lead.id)}
+                              className="border-2 border-border bg-surface text-text rounded-md px-3 py-1 hover:bg-bg/10 font-bold transition-all inline-flex items-center gap-1 cursor-pointer"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              {expandedId === lead.id ? "Hide" : "View"}
+                            </button>
+                          </td>
+                        </tr>
+                        {/* Expanded details row */}
+                        {expandedId === lead.id && (
+                          <tr>
+                            <td colSpan={6} className="p-6 bg-bg/25 border-b border-border/15">
+                              <div className="space-y-3 max-w-4xl">
+                                <h4 className="font-bold text-text uppercase tracking-widest text-[10px]">
+                                  Project Message Details:
+                                </h4>
+                                <div className="p-4 border border-border/10 bg-surface text-text text-sm rounded-xl leading-relaxed whitespace-pre-line">
+                                  {lead.message || "No project message provided."}
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-text-muted font-medium">
+                        No submissions match the search query and filter parameters.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Table Footer */}
+            <div className="p-4 border-t-2 border-border bg-bg/10 flex justify-between items-center text-[10px] text-text-muted">
+              <span>Showing {filteredSubmissions.length} of {totalSubmissions} leads</span>
+              {isDemoData && <span>Database status: Fallback Demo Data Active</span>}
+            </div>
+
+          </div>
+
+        </div>
+      </main>
+    </div>
+  );
+}

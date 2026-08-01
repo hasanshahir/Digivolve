@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #FAFAF6;
+  --surface: #FFFFFF;
+  --text: #16151A;
+  --text-muted: #5B5A63;
+  --border: #16151A;
+  --accent-coral: #F4552F;
+  --accent-sky: #2FA9D6;
+  --accent-amber: #F2B705;
+  
+  --shadow-color: rgba(22, 21, 26, 0.1);
+}
+
+.dark {
+  --bg: #17151C;
+  --surface: #211F28;
+  --text: #F6F4EF;
+  --text-muted: #A9A6B4;
+  --border: #F6F4EF;
+  --accent-coral: #FF6B47;
+  --accent-sky: #45C2EC;
+  --accent-amber: #F5C346;
+  
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-accent-coral: var(--accent-coral);
+  --color-accent-sky: var(--accent-sky);
+  --color-accent-amber: var(--accent-amber);
+  
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  
+  --shadow-brutal: 4px 4px 0px var(--border);
+  --shadow-brutal-hover: 2px 2px 0px var(--border);
+  --shadow-brutal-sm: 2px 2px 0px var(--border);
+  --shadow-brutal-lg: 6px 6px 0px var(--border);
+  
+  --animate-smooth-rotate: smooth-rotate 0.5s ease-out;
+}
+
+@keyframes smooth-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Global resets and helper classes */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Soft Brutalist components */
+.brutalist-card {
+  background-color: var(--surface);
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--border);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.brutalist-card:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--border);
+}
+
+.brutalist-card-active:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0 var(--border);
+}
+
+.brutalist-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  outline: none;
+}
+
+.brutalist-btn-primary {
+  background-color: var(--accent-coral);
+  color: #FFFFFF;
+  box-shadow: 4px 4px 0 var(--border);
+}
+
+.brutalist-btn-primary:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--border);
+}
+
+.brutalist-btn-primary:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0 var(--border);
+}
+
+.brutalist-btn-secondary {
+  background-color: var(--surface);
+  color: var(--text);
+  box-shadow: 4px 4px 0 var(--border);
+}
+
+.brutalist-btn-secondary:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--border);
+}
+
+.brutalist-btn-secondary:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0 var(--border);
+}
+
+/* Icon Badges */
+.brutalist-badge-coral {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid var(--border);
+  background-color: var(--accent-coral);
+  border-radius: 9999px;
+  box-shadow: 3px 3px 0 var(--border);
+}
+
+.brutalist-badge-sky {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid var(--border);
+  background-color: var(--accent-sky);
+  border-radius: 9999px;
+  box-shadow: 3px 3px 0 var(--border);
+}
+
+/* Custom Scrollbar for brutalist look */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-left: 2px solid var(--border);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border: 2px solid var(--bg);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-coral);
+}

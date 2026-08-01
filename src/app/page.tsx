@@ -1,0 +1,446 @@
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  Palette,
+  Award,
+  Share2,
+  Code,
+  Smartphone,
+  CheckCircle2,
+  ChevronRight,
+  TrendingUp,
+  Clock,
+  MessageSquare,
+  Sparkles,
+  ArrowUpRight,
+  Target,
+  Briefcase,
+  Play,
+  Rocket
+} from "lucide-react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import ReviewsCarousel from "@/components/ReviewsCarousel";
+
+export default function Home() {
+  const services = [
+    {
+      title: "Graphic Design",
+      description: "High-converting landing page assets, marketing collaterals, and pitch decks designed to capture attention and communicate value.",
+      icon: Palette,
+      badgeColor: "coral",
+    },
+    {
+      title: "Branding",
+      description: "Logos, style guides, font systems, and identity kits that give your brand a professional, premium voice in a crowded market.",
+      icon: Award,
+      badgeColor: "sky",
+    },
+    {
+      title: "Social Media Marketing",
+      description: "Strategic planning, content scheduling, and engagement setups designed to organically grow and retain your target client base.",
+      icon: Share2,
+      badgeColor: "coral",
+    },
+    {
+      title: "Website Development",
+      description: "Blazing-fast, SEO-optimized, responsive custom websites built with clean code and structured specifically to maximize conversions.",
+      icon: Code,
+      badgeColor: "sky",
+    },
+    {
+      title: "App Development",
+      description: "Modern cross-platform mobile apps for iOS and Android, focusing on intuitive UX, smooth performance, and clean design systems.",
+      icon: Smartphone,
+      badgeColor: "coral",
+    },
+  ];
+
+  const steps = [
+    { num: "01", name: "Brief", desc: "We listen first. We walk you through your goals, audience, and what success looks like for your business.", icon: MessageSquare },
+    { num: "02", name: "Strategy", desc: "We map out the roadmap — which channels, what content, what timeline, and exactly how we'll move the needle.", icon: Target },
+    { num: "03", name: "Create", desc: "Design, copy, video, code — whatever the deliverable, we produce it to a premium standard with your brand voice.", icon: Palette },
+    { num: "04", name: "Launch", desc: "Everything goes live, properly. No rushed handoffs, no missing pieces. We handle the execution end to end.", icon: Rocket },
+    { num: "05", name: "Grow", desc: "We analyse performance, double down on what's working, and continuously optimize to compound results over time.", icon: TrendingUp },
+  ];
+
+  const valueProps = [
+    { title: "Design-First", desc: "Every project starts with strategy and visual direction, not templates.", icon: Sparkles, badgeColor: "coral" },
+    { title: "Fast Turnaround", desc: "Small, focused team means quick iteration and direct execution.", icon: Clock, badgeColor: "sky" },
+    { title: "Direct Communication", desc: "Work straight with the person building it, no account-manager layers.", icon: MessageSquare, badgeColor: "coral" },
+  ];
+
+  const caseStudies = [
+    {
+      client: "UF Makeup",
+      service: "Social Media Management",
+      desc: "We built a stronger, more professional social presence across Instagram & Facebook, scaling outreach and unifying their visual branding.",
+      results: [
+        "Improved posting consistency & engagement",
+        "Organic reach boosted",
+        "Unified content aesthetic"
+      ],
+      tags: ["Monthly Calendars", "Reel Editing", "Weekly Analysis"],
+      badgeColor: "coral"
+    },
+    {
+      client: "Visa Agency",
+      service: "Content Management",
+      desc: "Established a stronger educational presence online, developing a clean tutorial pipeline to build authority and trust.",
+      results: [
+        "Established YouTube authority",
+        "4K Editorial Pipeline configured",
+        "CTR Optimized Thumbnails"
+      ],
+      tags: ["Script Planning", "Thumbnail Design", "Channel SEO"],
+      badgeColor: "sky"
+    },
+    {
+      client: "Iqra University",
+      service: "Social & Paid Ads",
+      desc: "Increased visibility and generated student enrollment inquiries through highly targeted geographic paid campaigns.",
+      results: [
+        "Direct student enrollment inquiry boost",
+        "Laser Geo-Targeting campaigns",
+        "Interactive reels content"
+      ],
+      tags: ["Targeted Campaigns", "Student Reels", "Lead Analytics"],
+      badgeColor: "coral"
+    },
+    {
+      client: "The Academy",
+      service: "Social Media & Advertising",
+      desc: "Increased user engagement and established clear branding, resulting in official certificates of recognition for excellence.",
+      results: [
+        "Boosting student engagement by 55%",
+        "Standardized branding guidelines across all channels",
+        "Official certificate of recognition for digital excellence"
+      ],
+      tags: ["Targeted Campaigns", "Brand Identity", "Design Kits"],
+      badgeColor: "sky"
+    },
+    {
+      client: "Wondershare Filmora",
+      service: "Video Editing & Content",
+      desc: "Delivered highly professional tutorial and promotional video assets for an internationally recognized software brand.",
+      results: [
+        "10+ high-quality video tutorials delivered",
+        "Reached over 200k organic views on YouTube",
+        "Streamlined editing pipeline for weekly uploads"
+      ],
+      tags: ["Video Editing", "Content Creation", "Promotions"],
+      badgeColor: "coral"
+    },
+    {
+      client: "CFO Services",
+      service: "LinkedIn & B2B Marketing",
+      desc: "Enhanced professional online presence among business audiences, establishing executive authority on corporate finances.",
+      results: [
+        "3x increase in weekly profile views",
+        "Established B2B executive authority",
+        "Generated 15+ high-ticket inbound sales leads"
+      ],
+      tags: ["B2B Strategy", "LinkedIn Growth", "Executive Authority"],
+      badgeColor: "sky"
+    }
+  ];
+
+  return (
+    <>
+      <Navbar />
+
+      <main className="flex-grow transition-colors duration-300">
+        {/* HERO SECTION */}
+        <section className="relative pt-24 pb-20 md:pt-32 md:pb-28 overflow-hidden">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            {/* Brutalist Agency Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 border-2 border-border bg-accent-amber text-text rounded-full font-display font-bold text-sm tracking-wide shadow-brutal-sm mb-8"
+            >
+              <Sparkles className="w-4 h-4 fill-current" />
+              Creative & Dev Agency
+            </motion.div>
+
+            {/* Mixed-Weight Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="font-display text-4xl sm:text-5xl md:text-7xl font-normal leading-[1.1] tracking-tight max-w-5xl mx-auto text-text"
+            >
+              <span className="font-extrabold text-accent-coral block sm:inline">Scale Your Brand</span>{" "}
+              with Conversion-Focused Campaigns
+            </motion.h1>
+
+            {/* Subtext */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mt-6 text-lg sm:text-xl text-text-muted max-w-3xl mx-auto leading-relaxed"
+            >
+              We build high-performance custom websites, premium branding, and conversion-focused social campaigns for startups and SMEs. Zero templates. Direct execution.
+            </motion.p>
+
+            {/* Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
+            >
+              <Link href="/contact" className="brutalist-btn brutalist-btn-primary px-8 py-4 text-base w-full sm:w-auto">
+                Get a Free Quote
+              </Link>
+              <Link href="/services" className="brutalist-btn brutalist-btn-secondary px-8 py-4 text-base w-full sm:w-auto">
+                Explore Services
+              </Link>
+            </motion.div>
+
+            {/* Trust Checklist */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm font-medium text-text-muted"
+            >
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-accent-coral" /> Clear Pricing
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-accent-sky" /> Fast Turnaround
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-accent-amber" /> Direct Communication
+              </span>
+            </motion.div>
+          </div>
+
+          {/* Background grid illustration (Brutalist style) */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(22,21,26,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(22,21,26,0.05)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(246,244,239,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(246,244,239,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] -z-10 pointer-events-none" />
+        </section>
+
+        {/* SERVICES PREVIEW */}
+        <section className="py-20 border-t-2 border-border bg-bg/50">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+              <div>
+                <span className="text-sm font-bold text-accent-coral tracking-widest uppercase block mb-2">Expertise</span>
+                <h2 className="font-display font-bold text-3xl sm:text-4xl text-text">
+                  Services <span className="font-normal text-text-muted">We Provide</span>
+                </h2>
+              </div>
+              <Link
+                href="/services"
+                className="inline-flex items-center gap-1.5 font-bold text-sm text-text hover:text-accent-coral transition-colors group"
+              >
+                Explore all services
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map((service, idx) => (
+                <div key={idx} className="brutalist-card p-8 flex flex-col justify-between">
+                  <div className="space-y-6">
+                    {/* Badge container for icon */}
+                    <div className="flex">
+                      <span className={`${service.badgeColor === "coral" ? "brutalist-badge-coral" : "brutalist-badge-sky"} w-14 h-14`}>
+                        <service.icon className={`w-6 h-6 ${service.badgeColor === "coral" ? "text-white" : "text-text"}`} />
+                      </span>
+                    </div>
+                    <h3 className="font-display font-bold text-2xl text-text">
+                      {service.title}
+                    </h3>
+                    <p className="text-text-muted text-sm leading-relaxed">
+                      {service.description}
+                    </p>
+                  </div>
+                  <div className="pt-8">
+                    <Link
+                      href={`/services#${service.title.toLowerCase().replace(/\s+/g, "-")}`}
+                      className="inline-flex items-center gap-1 font-bold text-xs text-text hover:text-accent-coral transition-colors"
+                    >
+                      Learn more <ArrowUpRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* HOW WE WORK (PROCESS) */}
+        <section id="how-we-work" className="py-20 border-t-2 border-border">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <span className="text-sm font-bold text-accent-sky tracking-widest uppercase block mb-2">Our Framework</span>
+              <h2 className="font-display font-bold text-3xl sm:text-4xl text-text">
+                How We <span className="font-normal text-text-muted">Generate Growth</span>
+              </h2>
+              <p className="text-text-muted mt-3">
+                A structured, transparent pipeline ensuring quality control and premium outcomes from day one.
+              </p>
+            </div>
+
+            {/* 5-Step Process Timeline */}
+            <div id="our-process" className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-20">
+              {steps.map((step, idx) => (
+                <div key={idx} className="brutalist-card p-6 flex flex-col justify-between relative bg-surface">
+                  {/* Step number badge */}
+                  <span className="absolute -top-3 -right-3 w-10 h-10 border-2 border-border bg-accent-amber text-text font-display font-bold rounded-full flex items-center justify-center shadow-brutal-sm text-sm">
+                    {step.num}
+                  </span>
+                  <div className="space-y-4">
+                    <span className="w-10 h-10 brutalist-badge-sky flex items-center justify-center text-text mb-4">
+                      <step.icon className="w-5 h-5" />
+                    </span>
+                    <h3 className="font-display font-bold text-xl text-text">
+                      {step.name}
+                    </h3>
+                    <p className="text-text-muted text-xs leading-relaxed">
+                      {step.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Core Value Props (3 cards) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {valueProps.map((prop, idx) => (
+                <div key={idx} className="brutalist-card p-8 flex items-start gap-5">
+                  <span className={`${prop.badgeColor === "coral" ? "brutalist-badge-coral" : "brutalist-badge-sky"} w-12 h-12 flex-shrink-0`}>
+                    <prop.icon className={`w-5 h-5 ${prop.badgeColor === "coral" ? "text-white" : "text-text"}`} />
+                  </span>
+                  <div className="space-y-2">
+                    <h4 className="font-display font-bold text-xl text-text">
+                      {prop.title}
+                    </h4>
+                    <p className="text-text-muted text-sm leading-relaxed">
+                      {prop.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CASE STUDIES (OUR WORK) */}
+        <section id="our-work" className="py-20 border-t-2 border-border bg-bg/50">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-12">
+              <span className="text-sm font-bold text-accent-coral tracking-widest uppercase block mb-2">Proven Results</span>
+              <h2 className="font-display font-bold text-3xl sm:text-4xl text-text">
+                Case Studies
+              </h2>
+              <p className="text-text-muted text-sm mt-2">
+                Work delivered under our previous name, <span className="font-bold text-text underline">Digivolve</span> — now HKH.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {caseStudies.map((cs, idx) => (
+                <div key={idx} className="brutalist-card flex flex-col h-full bg-surface">
+                  {/* Header */}
+                  <div className="p-6 border-b-2 border-border flex justify-between items-start gap-4">
+                    <div>
+                      <h3 className="font-display font-bold text-xl text-text">{cs.client}</h3>
+                      <p className="text-xs text-accent-coral font-bold mt-1 uppercase tracking-wider">{cs.service}</p>
+                    </div>
+                    <span className="text-xs font-semibold px-2.5 py-1 border-2 border-border bg-bg rounded-md">
+                      Client
+                    </span>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-6 flex-grow flex flex-col justify-between">
+                    <div className="space-y-6">
+                      <p className="text-sm text-text-muted italic leading-relaxed">
+                        "{cs.desc}"
+                      </p>
+
+                      {/* Results block */}
+                      <div className="space-y-2">
+                        <span className="text-xs font-bold text-text uppercase tracking-widest block mb-2">Key Outcomes:</span>
+                        <ul className="space-y-1.5 text-xs text-text-muted">
+                          {cs.results.map((res, rIdx) => (
+                            <li key={rIdx} className="flex items-start gap-2">
+                              <span className="text-accent-sky font-bold text-sm mt-0.5">•</span>
+                              <span>{res}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2 mt-8 pt-4 border-t border-border/10">
+                      {cs.tags.map((tag, tIdx) => (
+                        <span key={tIdx} className="text-[10px] font-bold px-2 py-0.5 border border-border bg-bg text-text-muted rounded-full">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* REVIEWS CAROUSEL */}
+        <section id="reviews" className="py-20 border-t-2 border-border text-center overflow-hidden">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-16">
+              <span className="text-sm font-bold text-accent-sky tracking-widest uppercase block mb-2">Client Feedback</span>
+              <h2 className="font-display font-bold text-3xl sm:text-4xl text-text">
+                What Partners <span className="font-normal text-text-muted">Say About Us</span>
+              </h2>
+            </div>
+
+            <ReviewsCarousel />
+          </div>
+        </section>
+
+        {/* CTA BANNER */}
+        <section className="py-16 md:py-24 border-t-2 border-border bg-accent-coral text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(22,21,26,0.15)_1px,transparent_1px),linear-gradient(to_bottom,rgba(22,21,26,0.15)_1px,transparent_1px)] bg-[size:3rem_3rem] -z-10 pointer-events-none" />
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center space-y-8 relative z-10">
+            <h2 className="font-display font-bold text-3xl sm:text-5xl md:text-6xl text-text leading-tight max-w-4xl mx-auto">
+              Ready to <span className="font-extrabold underline decoration-accent-amber underline-offset-8">Supercharge</span> Your Marketing & Development?
+            </h2>
+            <p className="text-text max-w-2xl mx-auto text-lg md:text-xl font-medium">
+              Get direct execution with a small, focused team. No corporate layers, just high-converting results.
+            </p>
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                href="/contact"
+                className="brutalist-btn bg-surface text-text border-2 border-border rounded-full px-8 py-4 font-bold shadow-[4px_4px_0_#16151A] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#16151A] transition-all duration-150 w-full sm:w-auto text-center"
+              >
+                Get a Free Quote
+              </Link>
+              <Link
+                href="/services"
+                className="brutalist-btn bg-accent-amber text-text border-2 border-border rounded-full px-8 py-4 font-bold shadow-[4px_4px_0_#16151A] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#16151A] transition-all duration-150 w-full sm:w-auto text-center"
+              >
+                Calculate Investment
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+      <WhatsAppButton />
+    </>
+  );
+}
