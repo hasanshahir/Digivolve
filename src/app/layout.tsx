@@ -4,7 +4,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import PageTransition from "@/components/PageTransition";
 import MotionProvider from "@/components/MotionProvider";
-import BaatcheetWidget from "@/components/BaatcheetWidget";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -41,10 +40,6 @@ export default function RootLayout({
             <PageTransition>{children}</PageTransition>
           </MotionProvider>
         </ThemeProvider>
-        <BaatcheetWidget
-          businessId="b769eaa1-fd59-4412-b2d0-4cf52da31f66"
-          host="https://alibaba-gray.vercel.app"
-        />
       </body>
     </html>
   );
